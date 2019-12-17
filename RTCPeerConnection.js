@@ -1,7 +1,7 @@
 'use strict';
 
 import EventTarget from 'event-target-shim';
-import {DeviceEventEmitter, NativeModules} from 'react-native';
+import {DeviceEventEmitter, NativeModules, Platform} from 'react-native';
 
 import MediaStream from './MediaStream';
 import MediaStreamEvent from './MediaStreamEvent';
@@ -377,6 +377,7 @@ export default class RTCPeerConnection extends EventTarget(PEER_CONNECTION_EVENT
         throw new ResourceInUse('DataChannel id already in use: ' + id);
       }
     } else {
+      const initId = Platform.OS === 'ios' ? 1 : 0
       // Allocate a new id.
       // TODO Remembering the last used/allocated id and then incrementing it to
       // generate the next id to use will surely be faster. However, I want to
@@ -386,7 +387,7 @@ export default class RTCPeerConnection extends EventTarget(PEER_CONNECTION_EVENT
       // is reserved due to SCTP INIT and INIT-ACK chunks only allowing a
       // maximum of 65535 streams to be negotiated (as defined by the WebRTC
       // Data Channel Establishment Protocol).
-      for (id = 0; id < 65535 && dataChannelIds.has(id); ++id);
+      for (id = initId; id < 65535 && dataChannelIds.has(id); ++id);
       // TODO Throw an error if no unused id is available.
       dataChannelDict = Object.assign({id}, dataChannelDict);
     }
